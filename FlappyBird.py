@@ -5,11 +5,9 @@ import sys
 
 pygame.init()
 
-# Establecer tamaño de la ventana
 screen = pygame.display.set_mode((400, 708))
-#screen = pygame.display.set_mode((400, 800))
 
-pygame.display.set_caption("Flappy Bird 2.0")
+pygame.display.set_caption("FlappyBird")
 
 clock = pygame.time.Clock()
 
@@ -90,9 +88,7 @@ class Pipe:
         self.rect.x = self.x
     
     def draw(self, screen):
-        #print(self.x, self.y)
-        #print(self.pipe_rect)
-        #print("_________________")
+
         if self.rect.y < 0:
             screen.blit(rotated_pipe_image, self.rect)
         else:
@@ -111,7 +107,7 @@ min_scale = 0.5
 max_scale = 1
 scale = 1
 scale_direction = 1
-# True = Agrandando | False = Achicando
+
 sizing = True
 
 gameover = pygame.image.load("assets/gameover.png")
