@@ -32,6 +32,24 @@ score = 0
 game_over = False
 running = False
 
+import os
+
+def saveScore(score):
+    f = open("BestScore", 'r+', encoding='utf-8')
+    best_score = int(f.read())
+    if score > best_score:
+        f.seek(0)
+        f.write(str(score))
+    f.close()
+
+def getBest():
+    with open("BestScore", 'r') as f:
+        score = f.read()
+        if score.strip().isdigit():
+            return int(score)
+        else:
+            return 0
+
 # Clase pajaro
 class Bird:
     def __init__(self, x, y):
@@ -53,6 +71,12 @@ class Bird:
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)
+        
+    def mainmenu(self):
+        self.x += 5
+        self.rect.x = self.x
+        if self.x > 450: 
+            self.x = -75
 
 # Clase tubo      
 class Pipe:
@@ -90,6 +114,12 @@ scale_direction = 1
 # True = Agrandando | False = Achicando
 sizing = True
 
+gameover = pygame.image.load("assets/gameover.png")
+gameover = pygame.transform.scale(gameover, (350, 200))
+
+main_menu_bird = Bird(-75, 300)
+bird = Bird(50, 200)
+
 # <----------->
 #    #BUCLES
 # <----------->
@@ -104,6 +134,9 @@ while running == False:
             if event.key == pygame.K_SPACE:
                 running = True
                 break
+            elif event.key == pygame.K_ESCAPE:
+                running = False
+                sys.exit()
     screen.blit(background_image, (0, 0))
     if y < 30 and y >= 10 and completed == False:
         y+= 0.2
@@ -113,7 +146,10 @@ while running == False:
         y-= 0.2
     if int(y) == 10:
         completed = False
-        
+    
+    main_menu_bird.mainmenu()
+    
+    main_menu_bird.draw(screen)
     
     screen.blit(logo_image, (10, y))
     
@@ -127,46 +163,67 @@ while running == False:
     
     pygame.display.flip() 
 
-bird = Bird(50, 200)
-
 while running == True:
     clock.tick(80)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+            saveScore()
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
-                bird.jump()
-    pipe_timer += 1
-    screen.blit(background_image, (0, 0))
-    screen.blit(bird.image, bird.rect)
-    font = pygame.font.Font("assets/font/font.ttf", 40)
-    score_text = font.render(str(score), True, (255, 255, 255))
-    screen.blit(score_text, (10, 10))
-    if pipe_timer == pipe_interval:
-        #pipe_list.append(Pipe(400, random.randint(350,400), pipe_image))
-        #pipe_list.append(Pipe(400, random.randint(350,400) -550 - pipe_image.get_height(), rotated_pipe_image))
-        #pipe_timer = 0
-        x = 400
-        y = random.randint(350,450)
-        pipe_list.append(Pipe(x, y))
-        pipe_list.append(Pipe(x, y - random.randint(100,175) - pipe_image.get_height()))
-        pipe_timer = 0
-    
-    for pipe in pipe_list:
-        pipe.move()
-        pipe.draw(screen)
-        if last_pipe_passed is None:
-            last_pipe_passed = -1000
-        if last_pipe_passed == -1000:
-            if bird.rect.right > pipe.rect.left and pipe.rect.left > last_pipe_passed:
+                if game_over:
+                    score = 0
+                    pipe_list.clear()
+                    pipe_timer = 0
+                    bird = Bird(50, 200)
+                    game_over = False
+                else:
+                    bird.jump()
+            elif event.key == pygame.K_ESCAPE:
+                    running = False
+                    saveScore(score)
+                    sys.exit()
+    if game_over:
+        screen.blit(gameover, (25,300))
+    else:
+        pipe_timer += 1
+        screen.blit(background_image, (0, 0))
+        screen.blit(bird.image, bird.rect)
+        font = pygame.font.Font("assets/font/font.ttf", 40)
+        score_text = font.render(str(score), True, (255, 255, 255))
+        best_text = font.render(str(getBest()), True, (255, 255, 255))
+        screen.blit(score_text, (10, 10))
+        screen.blit(best_text, (300, 10))
+        if pipe_timer == pipe_interval:
+            #pipe_list.append(Pipe(400, random.randint(350,400), pipe_image))
+            #pipe_list.append(Pipe(400, random.randint(350,400) -550 - pipe_image.get_height(), rotated_pipe_image))
+            #pipe_timer = 0
+            x = 400
+            y = random.randint(350,450)
+            pipe_list.append(Pipe(x, y))
+            pipe_list.append(Pipe(x, y - random.randint(100,175) - pipe_image.get_height()))
+            pipe_timer = 0
+        
+        for pipe in pipe_list:
+            pipe.move()
+            pipe.draw(screen)
+            if last_pipe_passed is None:
+                last_pipe_passed = -1000
+            if last_pipe_passed == -1000:
+                if bird.rect.left > pipe.rect.right and pipe.rect.left > last_pipe_passed:
+                    score += 1
+                    last_pipe_passed = pipe.rect
+            elif bird.rect.left > pipe.rect.right and pipe.rect.left > last_pipe_passed.left:
                 score += 1
                 last_pipe_passed = pipe.rect
-        elif bird.rect.right > pipe.rect.left and pipe.rect.left > last_pipe_passed.left:
-            score += 1
-            last_pipe_passed = pipe.rect
-        if pipe.x <= -50:
-            pipe_list.remove(pipe)
-    bird.update()
+            if bird.rect.colliderect(pipe.rect):
+                saveScore(score)
+                game_over = True
+            if bird.rect.y > screen.get_height() or bird.rect.y < 0:
+                saveScore(score)
+                game_over = True
+            if pipe.x <= -50:
+                pipe_list.remove(pipe)
+        bird.update()
     pygame.display.update()
