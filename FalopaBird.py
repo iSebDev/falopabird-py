@@ -21,8 +21,6 @@ import os
 import re
 import json
 
-# script_dir = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
-# os.chdir(script_dir)
 script_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(script_dir)
 
