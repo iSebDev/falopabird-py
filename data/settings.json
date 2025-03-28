@@ -1,0 +1,51 @@
+{
+    "author": "SebDev",
+    "config": {
+        //
+        //  Scoring:
+        //      score.step          -- Suma de puntaje
+        //          Default: 1
+        //      score.perPipe       -- Cuantas tuberias tiene que pasar para sumar puntaje
+        //         Default: 1
+        //
+        "score.step": 1,
+        "score.perPipe": 1,
+        //
+        //  Gameplay:
+        //      gameplay.gravity    -- Gravedad del pajaro
+        //          Default: 0.25
+        //      gameplay.velocity   -- Velocidad de salto del pajaro
+        //          Default: -5
+        //      gameplay.animBird   -- Animar el pajaro
+        //          Default: true
+        //      gameplay.pipePer    -- Tiempo para que aparezcan las tuberias
+        //          Default: 90
+        //      gameplay.pipeSpeed  -- Velocidad de las tuberias hacia el jugador
+        //          Default: 5
+        //      gameplay.backgAnim  -- Animacion del fondo
+        //
+        //  Keys:
+        //      Pause     - P (Press P for pause and for resume game)
+        //      Jump      - Espacio o click izq. (Space or left click)
+        //      Col Boxes - H (Press H)
+        //      Invert    - Tab (Press TAB)
+        //      Plane     - F7 (Press F7)
+        //      Menu      - M (Press M)
+        //
+        "gameplay.gravity": 0.5,
+        "gameplay.velocity": -5,
+        "gameplay.animBird": true,
+        "gameplay.pipePer": 90,
+        "gameplay.pipeSpeed": 7,
+        "gameplay.backgAnim": true,
+        //
+        //  Textures
+        //
+        "texture.bird": "bird.tga",
+        "texture.pipe": "pipe.tga",
+        "texture.plane": "plane.tga",
+        "texture.tower": "tower.tga",
+        "texture.logo": "logo.png",
+        "texture.backgrounds": ["background_fb.bmp", "background_ny.bmp"]
+    }
+}
