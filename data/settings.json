@@ -23,6 +23,9 @@
         //      gameplay.pipeSpeed  -- Velocidad de las tuberias hacia el jugador
         //          Default: 5
         //      gameplay.backgAnim  -- Animacion del fondo
+        //          Default: true
+        //      gameplay.tAntenna   -- Antena de la torre
+        //          Default: false
         //
         //  Keys:
         //      Pause     - P (Press P for pause and for resume game)
@@ -32,12 +35,13 @@
         //      Plane     - F7 (Press F7)
         //      Menu      - M (Press M)
         //
-        "gameplay.gravity": 0.5,
+        "gameplay.gravity": 0.25,
         "gameplay.velocity": -5,
         "gameplay.animBird": true,
         "gameplay.pipePer": 90,
         "gameplay.pipeSpeed": 7,
         "gameplay.backgAnim": true,
+        "gameplay.tAntenna": false,
         //
         //  Textures
         //

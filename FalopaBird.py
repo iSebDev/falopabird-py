@@ -39,7 +39,7 @@ def loadSettings(file):
 
 config = loadSettings("data/settings.json")['config']
 
-defSett = {'step': 1, 'perPipe': 1, 'gravity': 0.25, 'velocity': -5, 'animBird': True, 'pipePer': 90, 'pipeSpeed': 5, 'backgAnim': False, 'bird': 'bird.tga', 'pipe': 'pipe.tga', 'plane': 'plane.tga', 'tower': 'tower.tga', 'logo': 'logo.png', 'backgrounds': ['background_fb.bmp', 'background_ny.bmp']}
+defSett = {'step': 1, 'perPipe': 1, 'gravity': 0.25, 'velocity': -5, 'animBird': True, 'pipePer': 90, 'pipeSpeed': 5, 'backgAnim': False, 'tAntenna': False, 'bird': 'bird.tga', 'pipe': 'pipe.tga', 'plane': 'plane.tga', 'tower': 'tower.tga', 'logo': 'logo.png', 'backgrounds': ['background_fb.bmp', 'background_ny.bmp']}
 
 sett = {}
 
@@ -73,7 +73,7 @@ screen = pygame.display.set_mode((400, 708))
 
 pygame.display.set_icon(pygame.image.load("assets/"+bird_file))
 
-pygame.display.set_caption("FlappyBird")
+pygame.display.set_caption("FalopaBird")
 
 clock = pygame.time.Clock()
 
@@ -136,6 +136,7 @@ class Bird:
             boomPoint = (bird.x, bird.y)
             saveScore(score)
             game_over = True
+
         if invert:
             self.velocity += self.gravity
             self.y -= self.velocity
@@ -143,7 +144,7 @@ class Bird:
             self.velocity += self.gravity
             self.y += self.velocity
         self.rect.topleft = (self.x, self.y)
-        angle = max(-30, min(30, self.velocity * 3)) 
+        angle = max(-30, min(50, self.velocity * 3)) 
         if getSett("animBird"):
             self.image_rotated = pygame.transform.rotate(self.image, -angle).convert_alpha()
         self.rect = self.image_rotated.get_rect(center=self.rect.center)
@@ -156,13 +157,14 @@ class Bird:
         
     def mainmenu(self):
         scale = 1 + 0.1 * math.sin(pygame.time.get_ticks() * 0.005)
+        self.image = pygame.image.load("assets/"+bird_file).convert_alpha()
         self.image_scaled = pygame.transform.scale(self.image, (int(60 * scale), int(50 * scale)))
 
         self.x += 5
         self.rect.x = self.x
         if self.x > 450: 
             self.x = -75
-
+        
         screen.blit(self.image_scaled, self.rect)
 
 class Pipe:
@@ -171,6 +173,8 @@ class Pipe:
         self.x = x
         self.y = y
         pipe_image = pygame.image.load("assets/"+pipe_file).convert_alpha()
+        if not getSett("tAntenna") and ladenBin:
+            pipe_image = pygame.transform.chop(pipe_image, (0, 0, 0, 250))
         pipe_image = pygame.transform.scale(pipe_image, (65,400))
         rotated_pipe_image = pygame.transform.flip(pipe_image, False, True)
         self.image = pipe_image
@@ -204,6 +208,7 @@ logo_direction = 1
 
 sizing = True
 hitbox = False
+ladenBin = False
 invert = False
 pause = False
 
@@ -296,7 +301,7 @@ class EventHandler():
                     print(f"Cheat -> Invert Game ({invert})")
 
     def handleIngame(self):
-        global invert, hitbox
+        global invert, hitbox, ladenBin
         global pause
         global game_over
         global pipe_timer
@@ -324,17 +329,18 @@ class EventHandler():
 
                 if event.key == self.invertKey and not game_over and not pause:
                     invert = True if not invert else False
+                    bird.velocity = getSett("velocity") / 2
                     print(f"Cheat -> Invert Game ({invert})")
                 
                 if event.key == self.menuKey and game_over:
-                    print(f"Flappy -> Back to main menu")
+                    print(f"Game -> Back to main menu")
                     mainMenu()
 
                 if event.key == self.specialKey1 and not game_over:
+                    ladenBin = False if ladenBin else True
                     bird_file = plane_file if bird_file != plane_file else "bird.tga"
                     pipe_file = tower_file if pipe_file != tower_file else "pipe.tga"
                     bg_file = ny_file if bg_file != ny_file else "background_fb.bmp"
-                    print("bg_file: "+bg_file)
                     if bg_file == ny_file:
                         background_image = pygame.image.load("assets/"+bg_file).convert()
                         background_image = pygame.transform.scale(background_image, (400, 708))
@@ -353,6 +359,8 @@ class EventHandler():
                         background.returnBackground()
 
                     pipe_image = pygame.image.load("assets/"+pipe_file).convert_alpha()
+                    if not getSett("tAntenna") and ladenBin:
+                        pipe_image = pygame.transform.chop(pipe_image, (0, 0, 0, 250))
                     pipe_image = pygame.transform.scale(pipe_image, (65,400))
                     rotated_pipe_image = pygame.transform.flip(pipe_image, False, True)
 
@@ -636,5 +644,5 @@ while running:
 
     drawScore()
 
-    pygame.display.set_caption(f"FlappyBird ({min(int(clock.get_fps()), 60)} FPS)")
+    pygame.display.set_caption(f"FalopaBird ({min(int(clock.get_fps()), 60)} FPS)")
     pygame.display.update()
