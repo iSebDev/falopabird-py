@@ -12,6 +12,8 @@
         "score.perPipe": 1,
         //
         //  Gameplay:
+        //      gameplay.fps        -- FPS Ingame
+        //          Default: 60
         //      gameplay.gravity    -- Gravedad del pajaro
         //          Default: 0.25
         //      gameplay.velocity   -- Velocidad de salto del pajaro
@@ -25,7 +27,9 @@
         //      gameplay.backgAnim  -- Animacion del fondo
         //          Default: true
         //      gameplay.tAntenna   -- Antena de la torre
-        //          Default: false
+        //          Default: true
+        //      gameplay.powerUps   -- PowerUps en el juego despues de los 10 puntos
+        //          Default: true
         //
         //  Keys:
         //      Pause     - P (Press P for pause and for resume game)
@@ -35,13 +39,15 @@
         //      Plane     - F7 (Press F7)
         //      Menu      - M (Press M)
         //
+        "gameplay.fps": 60,
         "gameplay.gravity": 0.25,
         "gameplay.velocity": -5,
         "gameplay.animBird": true,
         "gameplay.pipePer": 90,
-        "gameplay.pipeSpeed": 7,
+        "gameplay.pipeSpeed": 5,
         "gameplay.backgAnim": true,
-        "gameplay.tAntenna": false,
+        "gameplay.tAntenna": true,
+        "gameplay.powerUps": true,
         //
         //  Textures
         //

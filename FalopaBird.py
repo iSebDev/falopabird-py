@@ -1,6 +1,5 @@
-#   """
 #    ________          __                                _______   __                  __ 
-#   |        \        |  \                              |       \ |  \                |  \. 
+#   |        \        |  \                              |       \ |  \                |  \.
 #   | $$$$$$$$______  | $$  ______    ______    ______  | $$$$$$$\ \$$  ______    ____| $$
 #   | $$__   |      \ | $$ /      \  /      \  |      \ | $$__/ $$|  \ /      \  /      $$
 #   | $$  \   \$$$$$$\| $$|  $$$$$$\|  $$$$$$\  \$$$$$$\| $$    $$| $$|  $$$$$$\|  $$$$$$$
@@ -10,8 +9,7 @@
 #    \$$      \$$$$$$$ \$$  \$$$$$$ | $$$$$$$   \$$$$$$$ \$$$$$$$  \$$ \$$        \$$$$$$$
 #                                   | $$                                                  
 #                                   | $$                                                  
-#                                    \$$                    
-#   """
+#                                    \$$                 By iSebDev
 
 import pygame
 import math
@@ -39,7 +37,7 @@ def loadSettings(file):
 
 config = loadSettings("data/settings.json")['config']
 
-defSett = {'step': 1, 'perPipe': 1, 'gravity': 0.25, 'velocity': -5, 'animBird': True, 'pipePer': 90, 'pipeSpeed': 5, 'backgAnim': False, 'tAntenna': False, 'bird': 'bird.tga', 'pipe': 'pipe.tga', 'plane': 'plane.tga', 'tower': 'tower.tga', 'logo': 'logo.png', 'backgrounds': ['background_fb.bmp', 'background_ny.bmp']}
+defSett = {'step': 1, 'perPipe': 1, 'fps': 60, 'gravity': 0.25, 'velocity': -5, 'animBird': True, 'pipePer': 90, 'pipeSpeed': 5, 'backgAnim': False, 'tAntenna': False, 'powerUps': True, 'bird': 'bird.tga', 'pipe': 'pipe.tga', 'plane': 'plane.tga', 'tower': 'tower.tga', 'logo': 'logo.png', 'backgrounds': ['background_fb.bmp', 'background_ny.bmp']}
 
 sett = {}
 
@@ -51,6 +49,7 @@ pygame.init()
 def getSett(name):
     return defSett[name] if sett.get(name) is None else sett.get(name)
 
+fps_tick = getSett("fps")
 bird_file = getSett("bird")
 plane_file = getSett("plane")
 pipe_file = getSett("pipe")
@@ -73,9 +72,9 @@ screen = pygame.display.set_mode((400, 708))
 
 pygame.display.set_icon(pygame.image.load("assets/"+bird_file))
 
-pygame.display.set_caption("FalopaBird")
-
 clock = pygame.time.Clock()
+
+pygame.display.set_caption(f"FalopaBird (Recently Started)")
 
 pipe_image = pygame.image.load("assets/"+pipe_file).convert()
 pipe_image = pygame.transform.scale(pipe_image, (65,400))
@@ -89,10 +88,19 @@ pipehb_list = []
 pipe_passed = 0
 pipe_score = getSett("perPipe")
 
+powerUps = {
+    "multiplier": False,
+    "slowmode": False,
+    "speedmode": False,
+    "godmode": False
+}
+
 score = 0
 step_score = getSett("step")
 
 game_over = False
+menu_id = 0
+menu_switching = False
 running = False
 max_best_length = 7
 
@@ -167,6 +175,19 @@ class Bird:
         
         screen.blit(self.image_scaled, self.rect)
 
+class PowerUp:
+    def __init__(self, x, y, effect):
+        self.x = x
+        self.y = y
+
+        self.effect = effect
+
+    def checkPickup(self, bird):
+        pass
+
+    def pickup(self, bird):
+        pass
+
 class Pipe:
     def __init__(self, x, y):
         global rotated_pipe_image
@@ -174,7 +195,7 @@ class Pipe:
         self.y = y
         pipe_image = pygame.image.load("assets/"+pipe_file).convert_alpha()
         if not getSett("tAntenna") and ladenBin:
-            pipe_image = pygame.transform.chop(pipe_image, (0, 0, 0, 250))
+            pipe_image = pygame.transform.chop(pipe_image, (0, 0, 0, 200))
         pipe_image = pygame.transform.scale(pipe_image, (65,400))
         rotated_pipe_image = pygame.transform.flip(pipe_image, False, True)
         self.image = pipe_image
@@ -338,9 +359,9 @@ class EventHandler():
 
                 if event.key == self.specialKey1 and not game_over:
                     ladenBin = False if ladenBin else True
-                    bird_file = plane_file if bird_file != plane_file else "bird.tga"
-                    pipe_file = tower_file if pipe_file != tower_file else "pipe.tga"
-                    bg_file = ny_file if bg_file != ny_file else "background_fb.bmp"
+                    bird_file = plane_file if bird_file != plane_file else getSett("bird")
+                    pipe_file = tower_file if pipe_file != tower_file else getSett("pipe")
+                    bg_file = ny_file if bg_file != ny_file else getSett("backgrounds")[0]
                     if bg_file == ny_file:
                         background_image = pygame.image.load("assets/"+bg_file).convert()
                         background_image = pygame.transform.scale(background_image, (400, 708))
@@ -361,6 +382,10 @@ class EventHandler():
                     pipe_image = pygame.image.load("assets/"+pipe_file).convert_alpha()
                     if not getSett("tAntenna") and ladenBin:
                         pipe_image = pygame.transform.chop(pipe_image, (0, 0, 0, 250))
+                        if not getSett("tAntenna") and ladenBin:
+                            pipe_image = pygame.transform.chop(pipe_image, (0, 0, 0, 200))
+                            for i in pipe_list:
+                                i[0].image = pipe_image
                     pipe_image = pygame.transform.scale(pipe_image, (65,400))
                     rotated_pipe_image = pygame.transform.flip(pipe_image, False, True)
 
@@ -448,7 +473,14 @@ def gameOver():
         ts = pygame.image.load("assets/topsecret.tga").convert_alpha()
         ts = pygame.transform.scale(ts, (400, 600))
         tsr = ts.get_rect(topleft = (0, 300))
-        screen.blit(ts, tsr)
+
+        ts2 = pygame.transform.flip(ts, True, True)
+        tsr2 = ts2.get_rect(topleft = (0, -200))
+
+        if invert:
+            screen.blit(ts2, tsr2)
+        else:
+            screen.blit(ts, tsr)
     else:
         if invert:
             screen.blit(gameover2, (25,300))
@@ -578,7 +610,8 @@ def mainMenu():
         running = False
 
     while not running:
-        tick = clock.tick(60)
+
+        tick = clock.tick(fps_tick)
         
         event.handleMenu()
 
@@ -595,7 +628,7 @@ def mainMenu():
 mainMenu()
 
 while running:
-    tick = clock.tick(60)
+    tick = clock.tick(fps_tick)
 
     event.handleIngame()
 
@@ -644,5 +677,6 @@ while running:
 
     drawScore()
 
-    pygame.display.set_caption(f"FalopaBird ({min(int(clock.get_fps()), 60)} FPS)")
+    pygame.display.set_caption(f"FalopaBird ({min(int(clock.get_fps()), fps_tick)} FPS)")
+
     pygame.display.update()
