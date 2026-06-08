@@ -2,6 +2,7 @@
     "author": "SebDev",
     "config": {
         //
+        //  ( RELAX :: This json lines that starts with // are supressed by the program )
         //  Scoring:
         //      score.step          -- Suma de puntaje
         //          Default: 1
